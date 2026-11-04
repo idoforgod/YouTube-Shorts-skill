@@ -1,0 +1,7 @@
+node_modules/
+.venv/
+수퍼토닉/코드/
+수퍼토닉/.venv/
+영상틀/out/
+__MACOSX/
+.DS_Store

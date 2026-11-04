@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@fontsource/black-han-sans": "^5.2.5",
+    "@remotion/cli": "^4.0.540",
+    "pretendard": "^1.3.9",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "remotion": "^4.0.540"
+  }
+}
