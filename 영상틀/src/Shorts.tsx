@@ -198,7 +198,7 @@ const 카드: React.FC<{k: Shot}> = ({k}) => {
       {k.위글 && <div style={{position: 'absolute', top: 70, width: '100%', textAlign: 'center', fontFamily: 큰글, fontSize: 66, color: 흐림, letterSpacing: 4}}>{k.위글}</div>}
       <div style={{position: 'absolute', top: 170, width: '100%', textAlign: 'center', fontFamily: 큰글, fontSize: 맞춤(k.큰글, 210), color: '#F2F2F2', lineHeight: 1}}>{k.큰글}</div>
       {k.도장 && <div style={{position: 'absolute', top: 210, right: 90, fontFamily: 큰글, fontSize: 84, color: c('빨강'), border: `9px solid ${c('빨강')}`, borderRadius: 14, padding: '0 22px', transform: `scale(${1.6 - 0.6 * 도장}) rotate(12deg)`, opacity: 도장}}>{k.도장}</div>}
-      {k.값 && <div style={{position: 'absolute', top: 430, width: '100%', textAlign: 'center', fontFamily: 숫자글, fontWeight: 900, fontSize: 240, color: c(k.값색), textShadow: `0 0 34px ${c(k.값색)}`, lineHeight: 1}}>{k.값}</div>}
+      {k.값 && <div style={{position: 'absolute', top: 430, width: '100%', textAlign: 'center', fontFamily: 숫자글, fontWeight: 900, fontSize: 맞춤(k.값, 240), color: c(k.값색), textShadow: `0 0 34px ${c(k.값색)}`, lineHeight: 1}}>{k.값}</div>}
       <div style={{position: 'absolute', top: k.값 ? 700 : 440, left: 120, right: 120, opacity: 목록}}>
         {(k.목록 ?? []).map((t: string) => (
           <div key={t} style={{fontFamily: 큰글, fontSize: k.값 ? 58 : 76, color: '#F2F2F2', marginBottom: k.값 ? 18 : 30}}>{k.점 ?? '✕'} {t}</div>

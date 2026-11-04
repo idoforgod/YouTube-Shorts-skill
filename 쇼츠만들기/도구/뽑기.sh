@@ -19,7 +19,7 @@ CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 cd "$R"
 mkdir -p out
 nice -n 15 npx remotion render src/index.ts Shorts "out/$NAME.mp4" --props="{\"name\":\"$NAME\",\"pan\":null}" \
-  --video-bitrate=8M --codec=h264 --concurrency=2 --audio-bitrate=192k --timeout=90000 "${BROWSER[@]}" > "out/$NAME.render.log" 2>&1 \
+  --video-bitrate=8M --codec=h264 --concurrency=1 --gl=angle --audio-bitrate=192k --timeout=90000 "${BROWSER[@]}" > "out/$NAME.render.log" 2>&1 \
   || { grep -m3 -E "Error" "out/$NAME.render.log"; exit 2; }
 cd out
 "$PY" "$HERE/시각게이트.py" "$NAME.mp4"   # 불통이면 여기서 멈춤(내보내지 않음)
