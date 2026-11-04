@@ -10,6 +10,7 @@ HOME_DIR="${SHORTS_HOME:-$(cd "$HERE/../.." && pwd)}"
 R="$HOME_DIR/영상틀"
 PY="$HOME_DIR/수퍼토닉/.venv/bin/python"; [ -x "$PY" ] || PY="$HOME_DIR/수퍼토닉/.venv/Scripts/python.exe"; [ -x "$PY" ] || PY=python3
 export SHORTS_HOME="$HOME_DIR"
+export PYTHONUTF8=1   # 윈도우 기본 코드페이지(cp949 등)에서 한글 파일·이모지 입출력이 깨지지 않게
 J=$(cd "$(dirname "$J")" && pwd)/$(basename "$J")
 "$PY" "$HERE/음성짓기.py" "$J"
 BROWSER=()

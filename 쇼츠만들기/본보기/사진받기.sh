@@ -3,9 +3,11 @@
 # 실행: bash 사진받기.sh          (그다음 bash ../도구/뽑기.sh 본보기_환율.json)
 # 사진은 «파일 이름»으로 찾는다. 같은 사진이 안 나오면 검색어를 바꿔도 된다(JSON의 사진 이름만 같으면 됨).
 P="$(cd -P "$(dirname "$0")/../도구" && pwd)/사진찾기.py"
+export PYTHONUTF8=1   # 윈도우 기본 코드페이지(cp949 등)에서 한글·이모지 입출력이 깨지지 않게
+PYBIN=python3; "$PYBIN" -c "import sys" >/dev/null 2>&1 || PYBIN=python   # 윈도우는 python3 이름이 없을 수 있다
 get() {   # 위키미디어가 «너무 많은 요청(429)»이면 20초 쉬고 다시(최대 4번)
   for i in 1 2 3 4; do
-    python3 "$P" "$1" "$2" "$3" 2>/dev/null && { sleep 3; return 0; }
+    "$PYBIN" "$P" "$1" "$2" "$3" 2>/dev/null && { sleep 3; return 0; }
     sleep 20
   done
   echo "❌ $1/$2 못 받음 — 검색어를 바꿔 사진찾기.py 로 다시"

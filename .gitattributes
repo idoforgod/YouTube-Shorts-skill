@@ -1,0 +1,2 @@
+# 윈도우에서 clone 해도 bash 스크립트가 CRLF 로 바뀌지 않게(\r: command not found 방지)
+*.sh text eol=lf

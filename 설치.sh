@@ -16,16 +16,16 @@ need() { command -v "$1" >/dev/null 2>&1 || { echo "❌ $1 이(가) 없습니다
 
 say "1/5 필요한 프로그램 확인"
 MISSING=0
-need node   "https://nodejs.org 에서 설치(18 이상) — 맥: brew install node"
+need node   "https://nodejs.org 에서 설치(18 이상) — 맥: brew install node · 윈도우: winget install OpenJS.NodeJS.LTS"
 need npm    "Node.js 와 함께 설치됩니다"
-need git    "맥: xcode-select --install"
-need ffmpeg "맥: brew install ffmpeg · 윈도우: winget install ffmpeg"
+need git    "맥: xcode-select --install · 윈도우: winget install Git.Git"
+need ffmpeg "맥: brew install ffmpeg · 윈도우: winget install Gyan.FFmpeg"
 need ffprobe "ffmpeg 와 함께 설치됩니다"
 PYBIN=""
-for c in python3.12 python3.11 python3.13 python3.10 python3; do
+for c in python3.12 python3.11 python3.13 python3.10 python3 python; do
   if command -v "$c" >/dev/null 2>&1 && "$c" -c 'import sys; sys.exit(0 if (3,10)<=sys.version_info[:2]<=(3,13) else 1)' 2>/dev/null; then PYBIN="$c"; break; fi
 done
-[ -n "$PYBIN" ] || { echo "❌ 파이썬 3.10~3.13 이 없습니다. 맥: brew install python@3.12"; MISSING=1; }
+[ -n "$PYBIN" ] || { echo "❌ 파이썬 3.10~3.13 이 없습니다. 맥: brew install python@3.12 · 윈도우: winget install Python.Python.3.12"; MISSING=1; }
 [ "$MISSING" = 0 ] || { echo; echo "위 프로그램을 먼저 설치하고 bash 설치.sh 를 다시 실행하세요."; exit 1; }
 echo "✅ node $(node -v) · python $("$PYBIN" -V | cut -d' ' -f2) · ffmpeg 있음"
 
@@ -62,7 +62,13 @@ if [ -L "$SKILLS/쇼츠만들기" ]; then
 elif [ -e "$SKILLS/쇼츠만들기" ]; then
   echo "⚠ $SKILLS/쇼츠만들기 가 이미 있어 건드리지 않았습니다. 지우거나 이름을 바꾼 뒤 bash 설치.sh 를 다시 실행하세요."
 else
-  ln -s "$HOME_DIR/쇼츠만들기" "$SKILLS/쇼츠만들기"; echo "✅ 연결: $SKILLS/쇼츠만들기 → $HOME_DIR/쇼츠만들기"
+  if ln -s "$HOME_DIR/쇼츠만들기" "$SKILLS/쇼츠만들기"; then
+    echo "✅ 연결: $SKILLS/쇼츠만들기 → $HOME_DIR/쇼츠만들기"
+  else   # 윈도우는 관리자·개발자 모드 없이는 바로가기가 실패한다 → 폴더 복사로 바꾸고 SHORTS_HOME 을 안내
+    cp -R "$HOME_DIR/쇼츠만들기" "$SKILLS/쇼츠만들기"
+    echo "⚠ 바로가기를 못 만들어 폴더를 복사했습니다: $SKILLS/쇼츠만들기"
+    echo "   환경변수 SHORTS_HOME=$HOME_DIR 를 꼭 설정하세요(영상틀·수퍼토닉이 있는 폴더)."
+  fi
 fi
 
 echo

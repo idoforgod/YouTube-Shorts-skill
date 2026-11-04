@@ -8,6 +8,7 @@
 - [Claude Code](https://claude.com/claude-code)
 - Node.js 18 이상 · Python 3.10~3.13 · ffmpeg · git
   (맥: `brew install node ffmpeg python@3.12`)
+  (윈도우: 먼저 Git for Windows를 깔고 그 **Git Bash**에서 실행하세요. `winget install Git.Git` · `winget install OpenJS.NodeJS.LTS` · `winget install Python.Python.3.12` · `winget install Gyan.FFmpeg`)
 
 ## 받는 사람이 할 일 3줄
 1. 이 저장소를 받고 터미널에서 그 폴더로 이동한다: `git clone https://github.com/idoforgod/YouTube-Shorts-skill.git && cd YouTube-Shorts-skill`
@@ -24,6 +25,7 @@
 
 ## 스킬 연결 방법
 `설치.sh`가 마지막에 `~/.claude/skills/쇼츠만들기` → `<받은 폴더>/쇼츠만들기` **바로가기(심볼릭 링크)**를 자동으로 만듭니다. 폴더가 어디에 있는지는 이 바로가기를 따라가서 알아내므로 아무것도 설정할 필요가 없습니다.
+- 윈도우에서 바로가기(심볼릭 링크)를 못 만들면(관리자 권한·개발자 모드 필요) `설치.sh`가 대신 폴더를 복사하고 `SHORTS_HOME`을 설정하라고 알려 줍니다.
 - 이미 같은 이름이 있으면 건드리지 않고 알려 줍니다. 지우거나 이름을 바꾼 뒤 `bash 설치.sh`를 다시 실행하세요.
 - 바로가기 대신 **폴더를 복사**해서 넣고 싶다면: `cp -R 쇼츠만들기 ~/.claude/skills/` 하고, 환경변수 `SHORTS_HOME`에 이 폴더(영상틀·수퍼토닉이 있는 곳)의 경로를 적어 두세요(예: `export SHORTS_HOME=~/YouTube-Shorts-skill`).
 - 이 프로젝트에서만 쓰고 싶다면 `~/.claude/skills/` 대신 그 프로젝트의 `.claude/skills/`에 같은 방식으로 연결하세요.
@@ -46,7 +48,7 @@ bash ../도구/뽑기.sh 본보기_환율.json   # 녹음 → 영상 → 검사
 ```
 한 장씩 받는 법(이 방식으로 새 쇼츠의 사진도 받습니다):
 ```bash
-python3 쇼츠만들기/도구/사진찾기.py 본보기_환율 달러 "Cash money 140606-A-CA521-021"
+PYTHONUTF8=1 python3 쇼츠만들기/도구/사진찾기.py 본보기_환율 달러 "Cash money 140606-A-CA521-021"
 #                                    └ JSON 이름   └ 저장 이름(JSON의 "본보기_환율/달러.jpg")  └ 영어 검색어
 ```
 - 같은 사진이 안 나와도 괜찮습니다. JSON이 부르는 `본보기_환율/달러.jpg` 같은 이름으로 **아무 공개 사진**이 저장되면 됩니다.
