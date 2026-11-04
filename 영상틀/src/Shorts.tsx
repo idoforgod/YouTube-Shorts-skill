@@ -6,7 +6,7 @@ import {AbsoluteFill, Audio, Img, Sequence, continueRender, delayRender, interpo
 type Word = {글: string; 시작: number; 끝: number};
 type Shot = {때?: string | number; 꼴: string; [k: string]: any};
 type Scene = {말: string; 컷: Shot[]; 빨강?: string; 소리: string; 낱말: Word[]; 길이: number};
-export type ShortsPan = {제목: [string, string]; 꼬리: string; 장면: Scene[]; 음악?: {파일: string; 크기?: number}};
+export type ShortsPan = {제목: [string, string]; 꼬리: string; 장면: Scene[]; 음악?: {파일: string; 크기?: number}; 그림체?: '사진' | '선화' | '수채화' | '스케치노트'};
 
 const 띠 = {위: 430, 높이: 1070};
 const 색표: Record<string, string> = {흰: '#F2F2F2', 노랑: '#F5C400', 빨강: '#FF3B30', 오름: '#FF4646', 내림: '#2F7BFF', 초록: '#7FE3D0', 회색: '#9AA3B5'};
@@ -312,8 +312,97 @@ export const Shorts: React.FC<{name: string; pan: ShortsPan | null}> = ({pan}) =
   const 첫 = pan.장면[0]?.컷[0];
   const 첫사진 = 첫?.꼴 === '사진' ? 첫 : undefined;
   let at = 0;
+  const 선화 = pan.그림체 === '선화';
+  const 수채 = pan.그림체 === '수채화';
+  const 스케치 = pan.그림체 === '스케치노트';
   return (
-    <AbsoluteFill style={{background: '#000'}}>
+    <AbsoluteFill style={{background: '#000'}} className={선화 ? 'ln' : 수채 ? 'wc' : 스케치 ? 'sk' : undefined}>
+      {선화 && (
+        // 선화(한 줄 선 그림): 사진을 흑백→약한 흐림(선이 끊기지 않게)→라플라시안 윤곽→대비 상승.
+        // 화려함이 아니라 «정보 전달»이 목적이므로 단색 윤곽만 남긴다.
+        <>
+          <svg width="0" height="0" style={{position: 'absolute'}} aria-hidden="true">
+            <defs>
+              <filter id="lnf" colorInterpolationFilters="sRGB">
+                <feColorMatrix type="saturate" values="0" />
+                <feGaussianBlur stdDeviation="1.3" />
+                <feConvolveMatrix order="3" preserveAlpha="true" kernelMatrix="0 -1 0 -1 4 -1 0 -1 0" />
+                <feComponentTransfer>
+                  <feFuncR type="linear" slope="18" />
+                  <feFuncG type="linear" slope="18" />
+                  <feFuncB type="linear" slope="18" />
+                </feComponentTransfer>
+              </filter>
+            </defs>
+          </svg>
+          <style>{`.ln img{filter:url(#lnf) brightness(1.45) contrast(1.15);opacity:1}`}</style>
+        </>
+      )}
+      {수채 && (
+        // 수채화: ①약한 흐림으로 디테일을 녹이고 ②난류 변위로 가장자리를 번지게 하고
+        // ③discrete 계단으로 물감이 뭉친 면을 만든다. 정보 전달이 목적이므로 채도는 과하게 올리지 않는다.
+        <>
+          <svg width="0" height="0" style={{position: 'absolute'}} aria-hidden="true">
+            <defs>
+              <filter id="wcf" colorInterpolationFilters="sRGB">
+                <feGaussianBlur stdDeviation="2.2" result="b" />
+                <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="3" seed="7" result="n" />
+                <feDisplacementMap in="b" in2="n" scale="9" xChannelSelector="R" yChannelSelector="G" result="d" />
+                <feComponentTransfer in="d">
+                  <feFuncR type="discrete" tableValues="0 .18 .34 .5 .66 .82 1" />
+                  <feFuncG type="discrete" tableValues="0 .18 .34 .5 .66 .82 1" />
+                  <feFuncB type="discrete" tableValues="0 .18 .34 .5 .66 .82 1" />
+                </feComponentTransfer>
+                <feGaussianBlur stdDeviation="0.8" />
+              </filter>
+            </defs>
+          </svg>
+          <style>{`.wc img{filter:url(#wcf) saturate(1.25) brightness(1.08)}`}</style>
+        </>
+      )}
+      {스케치 && (
+        // 스케치노트(오너 지정 2026-11-05) = «수채 바탕» 위에 «펜 선»을 덮어씌운 그림.
+        // ⚠두 갈래를 CSS filter 사슬로는 만들 수 없다(사슬은 분기가 없다) ⇒ filter «하나» 안에서
+        // 바탕과 선을 각각 만들고 feBlend multiply 로 합친다.
+        //  ⒜ 바탕 wash : 수채화와 «동일한» 값을 쓴다 — scale 9 는 실측으로 고른 값이다
+        //                (14 면 돔 디테일에 분홍·녹색 반점이 생긴다 · master 2026-11-05).
+        //  ⒝ 선   ink  : 흑백→흐림 1.3→라플라시안 윤곽 → ⟨1.6 − 24·edge⟩ 로 뒤집어 «흰 바탕의 검은 선».
+        //                intercept 1.6 이 문턱이다: edge < 0.025 인 잔결(석조 무늬·잡티)은 흰색으로 버려지고
+        //                구조선만 남는다. 실측 2026-11-05: ⟨1 − 10·edge⟩ 는 돔 디테일이 검은 반점으로 덮였고,
+        //                흐림 1.6 + 기울기 7~9 는 선이 사라져 수채화와 구별되지 않았다.
+        //                같은 난류를 «더 작은» scale(4) 로 걸어 선이 바탕과 살짝 어긋나게 한다 —
+        //                손으로 덧그린 노트의 어긋남이 그것이고, 0 으로 맞추면 사진 윤곽처럼 보인다.
+        //  ⒞ 합성      : multiply ⇒ 선이 있는 자리만 어두워지고 바탕 색은 그대로 남는다.
+        //                («현란하면 정보 전달에 방해» — 오너. 선은 가늘고 어둡게, 바탕은 건드리지 않는다.)
+        <>
+          <svg width="0" height="0" style={{position: 'absolute'}} aria-hidden="true">
+            <defs>
+              <filter id="skf" colorInterpolationFilters="sRGB">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="2.2" result="b" />
+                <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="3" seed="7" result="n" />
+                <feDisplacementMap in="b" in2="n" scale="9" xChannelSelector="R" yChannelSelector="G" result="d" />
+                <feComponentTransfer in="d" result="q">
+                  <feFuncR type="discrete" tableValues="0 .18 .34 .5 .66 .82 1" />
+                  <feFuncG type="discrete" tableValues="0 .18 .34 .5 .66 .82 1" />
+                  <feFuncB type="discrete" tableValues="0 .18 .34 .5 .66 .82 1" />
+                </feComponentTransfer>
+                <feGaussianBlur in="q" stdDeviation="0.8" result="wash" />
+                <feColorMatrix in="SourceGraphic" type="saturate" values="0" result="g" />
+                <feDisplacementMap in="g" in2="n" scale="4" xChannelSelector="R" yChannelSelector="G" result="gw" />
+                <feGaussianBlur in="gw" stdDeviation="1.3" result="gb" />
+                <feConvolveMatrix in="gb" order="3" preserveAlpha="true" kernelMatrix="0 -1 0 -1 4 -1 0 -1 0" result="lap" />
+                <feComponentTransfer in="lap" result="ink">
+                  <feFuncR type="linear" slope="-24" intercept="1.6" />
+                  <feFuncG type="linear" slope="-24" intercept="1.6" />
+                  <feFuncB type="linear" slope="-24" intercept="1.6" />
+                </feComponentTransfer>
+                <feBlend in="wash" in2="ink" mode="multiply" />
+              </filter>
+            </defs>
+          </svg>
+          <style>{`.sk img{filter:url(#skf) saturate(1.2) brightness(1.1)}`}</style>
+        </>
+      )}
       {pan.음악 && (
         // 배경음악: 목소리보다 훨씬 작게(기본 0.187) · 처음 1초 커지고 끝 1.5초 줄어듦 · 짧으면 되풀이
         <Audio src={staticFile(`음악/${pan.음악.파일}`)} loop volume={(f) => (pan.음악!.크기 ?? 0.187) * interpolate(f, [0, fps, 끝프 - fps * 1.5, 끝프], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} />
